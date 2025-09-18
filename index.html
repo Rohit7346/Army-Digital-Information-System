@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADIS - Army Digital Information System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-image: url("https://i.pinimg.com/736x/bc/71/da/bc71da46862292caed1969114bd1cd92.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        padding: 20px;
+        margin: 0;
+      }
+
+      .login-container {
+        background-color: rgb(254, 254, 254);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 420px;
+        padding: 30px;
+        border-top: 4px solid #2563eb;
+      }
+
+      .login-header {
+        text-align: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .login-header h1 {
+        color: #000000;
+        font-weight: 600;
+        font-size: 24px;
+        margin-bottom: 5px;
+        text-align: center;
+      }
+
+      .login-header p {
+        color: #64748b;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .input-group {
+        margin-bottom: 18px;
+        text-align: left;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 6px;
+        color: #374151;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      .input-group input,
+      .input-group select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.2s;
+        color: #1f2937;
+        background: white;
+      }
+
+      .input-group input:focus,
+      .input-group select:focus {
+        border-color: #2563eb;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+      }
+
+      .password-input {
+        position: relative;
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px;
+      }
+
+      .login-button {
+        width: 100%;
+        padding: 14px;
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: 10px;
+      }
+
+      .login-button:hover {
+        background-color: #1d4ed8;
+      }
+
+      .login-button:disabled {
+        background-color: #93c5fd;
+        cursor: not-allowed;
+      }
+
+      .system-notice {
+        margin-top: 20px;
+        padding: 12px;
+        background: #fefce8;
+        border: 1px solid #fef08a;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #854d0e;
+      }
+
+      .footer {
+        margin-top: 25px;
+        text-align: center;
+        font-size: 12px;
+        color: #6b7280;
+        padding-top: 15px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      /* Dashboard Styles */
+      .dashboard {
+        display: none;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 800px;
+        padding: 30px;
+        margin: 20px;
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .session-timer {
+        background: #f1f5f9;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+        color: #475569;
+        font-size: 14px;
+        min-width: 80px;
+        text-align: center;
+      }
+
+      .session-timer.warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .session-timer.critical {
+        background: #fee2e2;
+        color: #b91c1c;
+        animation: pulse 1s infinite;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
+
+      .user-list {
+        margin-top: 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .user-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 15px;
+        border-bottom: 1px solid #e5e7eb;
+        align-items: center;
+      }
+
+      .user-item:last-child {
+        border-bottom: none;
+        display: none;
+      }
+
+      .user-actions button {
+        padding: 6px 12px;
+        margin-left: 8px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 13px;
+      }
+
+      .btn-extend {
+        background: #10b981;
+        color: white;
+      }
+
+      .btn-logout {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-delete {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-add {
+        background: #3b82f6;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        margin-top: 15px;
+      }
+
+      .admin-controls {
+        margin-top: 25px;
+        padding-top: 15px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .admin-form {
+        display: none;
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 15px;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+
+      .form-row .input-group {
+        flex: 1;
+        margin-bottom: 0;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .error-message {
+        color: #dc2626;
+        background: #fef2f2;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        border: 1px solid #fecaca;
+        display: none;
+      }
+
+      .success-message {
+        color: #065f46;
+        background: #f0fdf4;
+        padding: 10px;
+        border-radius: 4px;
+        margin: 10px 0;
+        border: 1px solid #bbf7d0;
+        display: none;
+      }
+
+      /* Table Styles */
+      .user-management-table {
+        margin-top: 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        overflow: hidden;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      .user-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      .user-table th,
+      .user-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .user-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+        position: sticky;
+        top: 0;
+      }
+
+      .user-table tr:hover {
+        background: #f9fafb;
+      }
+
+      .user-table td {
+        font-size: 14px;
+      }
+
+      .status-active {
+        color: #10b981;
+        font-weight: 500;
+      }
+
+      .status-inactive {
+        color: #ef4444;
+        font-weight: 500;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn-update {
+        background: #3b82f6;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .btn-delete {
+        background: #ef4444;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .btn-update:hover {
+        background: #2563eb;
+      }
+
+      .btn-delete:hover {
+        background: #dc2626;
+      }
+
+      .session-timer.admin-infinite {
+        background: #10b981 !important;
+        color: white !important;
+        border: none;
+      }
+
+      .session-timer.admin-infinite i {
+        margin-right: 5px;
+      }
+
+      /* Captcha Styles */
+      .captcha-container {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #e5e7eb;
+      }
+
+      .captcha-code {
+        font-family: 'Courier New', monospace;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 3px;
+        color: #1f2937;
+        background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
+        padding: 15px;
+        border-radius: 4px;
+        text-align: center;
+        user-select: none;
+        border: 2px dashed #d1d5db;
+        margin-bottom: 10px;
+      }
+
+      .btn-refresh {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+      }
+
+      .btn-refresh:hover {
+        background: #2563eb;
+      }
+
+      /* Shake animation for wrong captcha */
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+      }
+
+      .shake {
+        animation: shake 0.3s ease-in-out;
+      }
+
+      /* Responsive styles */
+      @media (max-width: 768px) {
+        .dashboard {
+          padding: 20px;
+        }
+        
+        .form-row {
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        .user-table {
+          font-size: 12px;
+        }
+        
+        .user-table th,
+        .user-table td {
+          padding: 8px 10px;
+        }
+        
+        .action-buttons {
+          flex-direction: column;
+          gap: 4px;
+        }
+        
+        .btn-update,
+        .btn-delete {
+          padding: 4px 8px;
+          font-size: 11px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .login-container {
+          padding: 20px;
+        }
+        
+        .user-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        
+        .user-actions {
+          align-self: stretch;
+          display: flex;
+          gap: 8px;
+        }
+        
+        .user-actions button {
+          flex: 1;
+          margin-left: 0;
+        }
+        
+        .dashboard-header {
+          flex-direction: column;
+          gap: 15px;
+          text-align: center;
+        }
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+        gap: 10px;
+      }
+
+      .pagination button {
+        padding: 8px 12px;
+        background: #f1f5f9;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .pagination button.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+      <div class="login-header">
+        <h1>Army Digital Information System</h1>
+        <p>Enter your credentials to access the portal</p>
+      </div>
+
+      <div class="error-message" id="errorMessage"></div>
+      <div class="success-message" id="successMessage"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter your username"
+            required
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <div class="password-input">
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password"
+            />
+            <button type="button" class="toggle-password" id="togglePassword">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="role">Access Role</label>
+          <select id="role" required>
+            <option value="">-- Select access role --</option>
+            <option value="ADMIN">Administrator</option>
+            <option value="USER">Standard User</option>
+          </select>
+        </div>
+        
+        <!-- Captcha Section (Initially hidden) -->
+        <div class="captcha-container" id="captchaSection" style="display: none;">
+          <label>CAPTCHA Verification</label>
+          <div class="captcha-code" id="captchaImage">
+            <!-- Captcha will be generated here -->
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <input
+                type="text"
+                id="captcha"
+                placeholder="Enter the code shown above"
+                style="flex: 1;"
+            />
+            <button type="button" class="btn-refresh" id="refreshCaptcha">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="login-button" id="loginBtn">
+          <span id="loginText">Sign In</span>
+          <span id="loginSpinner" class="loading" style="display: none;"></span>
+        </button>
+      </form>
+
+      <div class="system-notice">
+        <i class="fas fa-shield-alt"></i> This is a secure government system.
+        Unauthorized access is prohibited.
+      </div>
+
+      <div class="footer">
+        <p>Official Government Portal • v3.2.1</p>
+        <p>For assistance, contact IT Support at (555) 123-HELP</p>
+      </div>
+    </div>
+   
+
+    <!-- User Dashboard -->
+    <div class="dashboard" id="userDashboard">
+      <div class="dashboard-header">
+        <h1>User Dashboard</h1>
+        <div class="session-timer" id="userSessionTimer">05:00</div>
+      </div>
+      
+      <p>Welcome, <span id="userWelcome">User</span>! You have successfully logged in to the Army Digital Information System.</p>
+      <p>Your session will expire in <span id="userTimeRemaining">5 minutes</span>.</p>
+      
+      <div class="user-actions" style="margin-top: 20px;">
+        <button class="btn-extend" id="userExtendBtn">Extend Session</button>
+        <button class="btn-logout" id="userLogoutBtn">Logout</button>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="dashboard" id="adminDashboard">
+      <div class="dashboard-header">
+        <h1>Administrator Dashboard</h1>
+        <div class="session-timer admin-infinite" id="adminSessionTimer">
+          <i class="fas fa-infinity"></i> No Timeout
+        </div>
+      </div>
+      
+      <p>Welcome, <span id="adminWelcome">Administrator</span>! You have full system access with infinite session.</p>
+      
+      <div class="admin-controls">
+        <h2>User Management</h2>
+        <button class="btn-add" id="addUserBtn">
+          <i class="fas fa-plus"></i> Add New User
+        </button>
+        
+        <div class="admin-form" id="addUserForm">
+          <h3>Add New User</h3>
+          <div class="form-row">
+            <div class="input-group">
+              <label for="newUsername">Username</label>
+              <input type="text" id="newUsername" required>
+            </div>
+            <div class="input-group">
+              <label for="newPassword">Password</label>
+              <input type="password" id="newPassword" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-group">
+              <label for="newRole">Role</label>
+              <select id="newRole" required>
+                <option value="USER">User</option>
+                <option value="ADMIN">Administrator</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label for="newEmail">Email</label>
+              <input type="email" id="newEmail">
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="newFullName">Full Name</label>
+            <input type="text" id="newFullName">
+          </div>
+          <div style="margin-top: 15px;">
+            <button type="button" class="btn-extend" id="saveUserBtn">
+              <i class="fas fa-save"></i> Save User
+            </button>
+            <button type="button" class="btn-logout" id="cancelAddBtn">Cancel</button>
+          </div>
+        </div>
+        
+        <div class="user-management-table">
+          <h3 style="padding: 12px 15px; background: #f1f5f9; margin: 0; border-radius: 6px 6px 0 0;">
+            <i class="fas fa-users"></i> User Management (Showing <span id="userCount">0</span> users)
+          </h3>
+          <div class="table-container">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Full Name</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Users will be loaded here dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination" id="pagination">
+            <!-- Pagination buttons will be added here -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="user-actions" style="margin-top: 25px;">
+        <button class="btn-logout" id="adminLogoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Global variables
+      let currentToken = null;
+      let sessionInterval;
+      let sessionTimeLeft = 300;
+      let isAdminUser = false;
+      let isOnline = false; // Always start in offline mode for demo
+      let offlineData = {
+        users: [],
+        auth: {}
+      };
+      let currentCaptcha = '';
+      let captchaGenerated = false;
+      let currentPage = 1;
+      const usersPerPage = 10;
+      const API_BASE_URL = 'http://localhost:8080/adis/api';
+
+      // Generate 500 users with proper credentials
+      function generate500Users() {
+        const users = [];
+        
+        // Add admin user
+        users.push({
+          id: 1,
+          username: 'admin',
+          password: 'admin123',
+          email: 'admin@army.mil',
+          fullName: 'System Administrator',
+          role: 'ADMIN',
+          active: true
+        });
+        
+        // Add 500 regular users
+        for (let i = 1; i <= 500; i++) {
+          users.push({
+            id: i + 1,
+            username: `user${i}`,
+            password: `password${i}`,
+            email: `user${i}@army.mil`,
+            fullName: `User ${i}`,
+            role: 'USER',
+            active: Math.random() > 0.1 // 90% active
+          });
+        }
+        
+        return users;
+      }
+
+      // Generate random captcha
+      function generateCaptcha() {
+        const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid confusing characters
+        let captcha = '';
+        
+        for (let i = 0; i < 6; i++) {
+            captcha += characters.charAt(Math.floor(Math.random() * characters.length));
+        }
+        
+        currentCaptcha = captcha;
+        captchaGenerated = true;
+        
+        // Display captcha
+        const captchaImage = document.getElementById('captchaImage');
+        captchaImage.innerHTML = currentCaptcha.split('').join(' ');
+        
+        // Clear input
+        document.getElementById('captcha').value = '';
+        
+        return captcha;
+      }
+
+      // Validate captcha
+      function validateCaptcha() {
+        const userInput = document.getElementById('captcha').value.trim().toUpperCase();
+        const normalizedCurrentCaptcha = currentCaptcha.toUpperCase();
+        
+        if (userInput === normalizedCurrentCaptcha) {
+            return true;
+        } else {
+            // Shake animation for wrong captcha
+            const captchaInput = document.getElementById('captcha');
+            captchaInput.classList.add('shake');
+            setTimeout(() => {
+                captchaInput.classList.remove('shake');
+            }, 300);
+            
+            // Generate new captcha
+            generateCaptcha();
+            return false;
+        }
+      }
+
+      // Show/hide captcha based on role selection
+      function toggleCaptcha() {
+        const role = document.getElementById('role').value;
+        const captchaSection = document.getElementById('captchaSection');
+        const captchaInput = document.getElementById('captcha');
+        
+        if (role === 'USER') {
+            captchaSection.style.display = 'block';
+            if (!captchaGenerated) {
+                generateCaptcha();
+            }
+            captchaInput.setAttribute('required', 'true');
+        } else {
+            captchaSection.style.display = 'none';
+            captchaInput.removeAttribute('required');
+        }
+      }
+
+      // Check if we're running offline (no server connection)
+      async function checkConnection() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/auth/check`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          
+          if (response.ok) {
+            isOnline = true;
+            return true;
+          }
+        } catch (error) {
+          console.log('Server not available, using offline mode');
+        }
+        
+        // If we reach here, server is not available
+        isOnline = false;
+        
+        // Initialize offline data if needed
+        if (!localStorage.getItem('offlineData')) {
+          const users = generate500Users();
+          const defaultOfflineData = {
+            users: users,
+            auth: {}
+          };
+          
+          // Create auth lookup from users
+          users.forEach(user => {
+            defaultOfflineData.auth[user.username] = {
+              username: user.username,
+              password: user.password,
+              role: user.role
+            };
+          });
+          
+          localStorage.setItem('offlineData', JSON.stringify(defaultOfflineData));
+        }
+        
+        offlineData = JSON.parse(localStorage.getItem('offlineData'));
+        return false;
+      }
+
+      // Offline login simulation
+      function offlineLogin(username, password, role) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            // Check if user exists in auth data
+            if (offlineData.auth[username] && 
+                offlineData.auth[username].password === password && 
+                offlineData.auth[username].role === role) {
+              
+              // Generate a simple token for offline use
+              const token = btoa(`offline:${username}:${role}:${Date.now() + 300000}`);
+              
+              resolve({
+                success: true,
+                token: token,
+                username: username,
+                role: role
+              });
+            } else {
+              reject(new Error('Invalid credentials'));
+            }
+          }, 500); // Simulate network delay
+        });
+      }
+
+      // Online login
+      async function onlineLogin(username, password, role) {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: username,
+            password: password,
+            role: role
+          })
+        });
+        
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || 'Login failed');
+        }
+        
+        return await response.json();
+      }
+
+      // Online user management
+      async function onlineGetUsers() {
+        const response = await fetch(`${API_BASE_URL}/users`, {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + currentToken
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        
+        return await response.json();
+      }
+
+      async function onlineCreateUser(userData) {
+        const response = await fetch(`${API_BASE_URL}/users`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to create user');
+        }
+        
+        return await response.json();
+      }
+
+      async function onlineUpdateUser(userId, userData) {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentToken
+          },
+          body: JSON.stringify(userData)
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update user');
+        }
+        
+        return await response.json();
+      }
+
+      async function onlineDeleteUser(userId) {
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': 'Bearer ' + currentToken
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete user');
+        }
+        
+        return response.ok;
+      }
+
+      async function onlineExtendSession() {
+        const response = await fetch(`${API_BASE_URL}/auth/extend`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + currentToken
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to extend session');
+        }
+        
+        return await response.json();
+      }
+
+      // Offline user management
+      function offlineGetUsers() {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(offlineData.users);
+          }, 300);
+        });
+      }
+
+      function offlineCreateUser(userData) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            const newId = offlineData.users.length > 0 ? 
+              Math.max(...offlineData.users.map(u => u.id)) + 1 : 1;
+            
+            const newUser = {
+              id: newId,
+              username: userData.username,
+              password: userData.password,
+              email: userData.email || '',
+              fullName: userData.fullName || '',
+              role: userData.role || 'USER',
+              active: true,
+              lastLogin: null,
+              sessionExpiry: null
+            };
+            
+            offlineData.users.push(newUser);
+            
+            // Also add to auth data
+            offlineData.auth[userData.username] = {
+              username: userData.username,
+              password: userData.password,
+              role: userData.role || 'USER'
+            };
+            
+            localStorage.setItem('offlineData', JSON.stringify(offlineData));
+            
+            resolve(newUser);
+          }, 300);
+        });
+      }
+
+      function offlineUpdateUser(userId, userData) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            const index = offlineData.users.findIndex(u => u.id === userId);
+            
+            if (index === -1) {
+              reject(new Error('User not found'));
+              return;
+            }
+            
+            // Update user data
+            if (userData.username) {
+              // Remove old auth entry if username changed
+              if (userData.username !== offlineData.users[index].username) {
+                delete offlineData.auth[offlineData.users[index].username];
+              }
+              offlineData.users[index].username = userData.username;
+            }
+            
+            if (userData.password) offlineData.users[index].password = userData.password;
+            if (userData.email) offlineData.users[index].email = userData.email;
+            if (userData.fullName) offlineData.users[index].fullName = userData.fullName;
+            if (userData.role) offlineData.users[index].role = userData.role;
+            
+            // Update auth data
+            offlineData.auth[offlineData.users[index].username] = {
+              username: offlineData.users[index].username,
+              password: offlineData.users[index].password,
+              role: offlineData.users[index].role
+            };
+            
+            localStorage.setItem('offlineData', JSON.stringify(offlineData));
+            resolve(offlineData.users[index]);
+          }, 300);
+        });
+      }
+
+      function offlineDeleteUser(userId) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            const index = offlineData.users.findIndex(u => u.id === userId);
+            
+            if (index === -1) {
+              reject(new Error('User not found'));
+              return;
+            }
+            
+            // Remove from auth data
+            delete offlineData.auth[offlineData.users[index].username];
+            
+            offlineData.users.splice(index, 1);
+            localStorage.setItem('offlineData', JSON.stringify(offlineData));
+            resolve({ success: true });
+          }, 300);
+        });
+      }
+
+      function offlineExtendSession(token) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            // Decode the simple offline token
+            const tokenData = atob(token).split(':');
+            const username = tokenData[1];
+            const role = tokenData[2];
+            
+            if (role === 'USER') {
+              // Find user and update session
+              const user = offlineData.users.find(u => u.username === username);
+              if (user) {
+                user.sessionExpiry = new Date(Date.now() + 300000).toISOString();
+                localStorage.setItem('offlineData', JSON.stringify(offlineData));
+              }
+            }
+            
+            // Generate a new token
+            const newToken = btoa(`offline:${username}:${role}:${Date.now() + 300000}`);
+            
+            resolve({
+              success: true,
+              token: newToken,
+              message: "Session extended successfully"
+            });
+          }, 300);
+        });
+      }
+
+      // Unified functions that handle both online and offline modes
+      async function handleLogin(username, password, role) {
+        if (isOnline) {
+          return await onlineLogin(username, password, role);
+        } else {
+          return await offlineLogin(username, password, role);
+        }
+      }
+
+      async function handleGetUsers() {
+        if (isOnline) {
+          return await onlineGetUsers();
+        } else {
+          return await offlineGetUsers();
+        }
+      }
+
+      async function handleCreateUser(userData) {
+        if (isOnline) {
+          return await onlineCreateUser(userData);
+        } else {
+          return await offlineCreateUser(userData);
+        }
+      }
+
+      async function handleUpdateUser(userId, userData) {
+        if (isOnline) {
+          return await onlineUpdateUser(userId, userData);
+        } else {
+          return await offlineUpdateUser(userId, userData);
+        }
+      }
+
+      async function handleDeleteUser(userId) {
+        if (isOnline) {
+          return await onlineDeleteUser(userId);
+        } else {
+          return await offlineDeleteUser(userId);
+        }
+      }
+
+      async function handleExtendSession() {
+        if (isOnline) {
+          return await onlineExtendSession();
+        } else {
+          return await offlineExtendSession(currentToken);
+        }
+      }
+
+      // Show/hide messages
+      function showError(message) {
+        const errorMessage = document.getElementById("errorMessage");
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        document.getElementById("successMessage").style.display = 'none';
+      }
+
+      function showSuccess(message) {
+        const successMessage = document.getElementById("successMessage");
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        document.getElementById("errorMessage").style.display = 'none';
+      }
+
+      function hideMessages() {
+        document.getElementById("errorMessage").style.display = 'none';
+        document.getElementById("successMessage").style.display = 'none';
+      }
+
+      // Start session timer (only for non-admin users)
+      function startSessionTimer() {
+        if (isAdminUser) {
+          console.log("🔄 Admin user detected - no session timeout");
+          // Update timer display to show "No Timeout" for admin
+          const adminSessionTimer = document.getElementById("adminSessionTimer");
+          if (adminSessionTimer) {
+            adminSessionTimer.innerHTML = '<i class="fas fa-infinity"></i> No Timeout';
+            adminSessionTimer.style.background = '#10b981';
+            adminSessionTimer.style.color = 'white';
+            adminSessionTimer.classList.remove("warning", "critical");
+          }
+          return; // Don't start timer for admin
+        }
+        
+        clearInterval(sessionInterval);
+        sessionTimeLeft = 300;
+        updateTimerDisplay();
+        
+        sessionInterval = setInterval(() => {
+          sessionTimeLeft--;
+          updateTimerDisplay();
+
+          if (sessionTimeLeft <= 0) {
+            clearInterval(sessionInterval);
+            showError("Session expired. Please log in again.");
+            logout();
+          } else if (sessionTimeLeft <= 60) {
+            document.getElementById("userSessionTimer").classList.add("critical");
+          } else if (sessionTimeLeft <= 120) {
+            document.getElementById("userSessionTimer").classList.add("warning");
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay() {
+        const minutes = Math.floor(sessionTimeLeft / 60);
+        const seconds = sessionTimeLeft % 60;
+        const timerDisplay = `${minutes.toString().padStart(2, "0")}:${seconds
+          .toString()
+          .padStart(2, "0")}`;
+        document.getElementById("userSessionTimer").textContent = timerDisplay;
+        document.getElementById("userTimeRemaining").textContent = `${minutes} minute${
+          minutes !== 1 ? "s" : ""
+        } and ${seconds} second${seconds !== 1 ? "s" : ""}`;
+      }
+
+      // Load users with pagination
+      async function loadUsers(page = 1) {
+        try {
+          const users = await handleGetUsers();
+          document.getElementById("userCount").textContent = users.length;
+
+          // Pagination logic
+          currentPage = page;
+          const startIndex = (page - 1) * usersPerPage;
+          const endIndex = startIndex + usersPerPage;
+          const paginatedUsers = users.slice(startIndex, endIndex);
+
+          const usersTableBody = document.getElementById("usersTableBody");
+          usersTableBody.innerHTML = "";
+
+          paginatedUsers.forEach((user) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${user.id}</td>
+              <td>${user.username}</td>
+              <td>${user.email || "N/A"}</td>
+              <td>${user.fullName || "N/A"}</td>
+              <td>${user.role}</td>
+              <td class="${user.active ? "status-active" : "status-inactive"}">
+                ${user.active ? "Active" : "Inactive"}
+              </td>
+              <td class="action-buttons">
+                <button class="btn-update" onclick="editUser(${user.id})">Update</button>
+                <button class="btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+              </td>
+            `;
+            usersTableBody.appendChild(row);
+          });
+
+          // Update pagination
+          const totalPages = Math.ceil(users.length / usersPerPage);
+          const pagination = document.getElementById("pagination");
+          pagination.innerHTML = "";
+          for (let i = 1; i <= totalPages; i++) {
+            const button = document.createElement("button");
+            button.textContent = i;
+            if (i === currentPage) button.classList.add("active");
+            button.addEventListener("click", () => loadUsers(i));
+            pagination.appendChild(button);
+          }
+        } catch (error) {
+          showError("Failed to load users");
+        }
+      }
+
+      // Edit user function
+      async function editUser(userId) {
+        const users = await handleGetUsers();
+        const user = users.find((u) => u.id === userId);
+        if (!user) {
+          showError("User not found");
+          return;
+        }
+
+        // Populate the add user form with existing user data
+        document.getElementById("newUsername").value = user.username;
+        document.getElementById("newPassword").value = "";
+        document.getElementById("newEmail").value = user.email || "";
+        document.getElementById("newFullName").value = user.fullName || "";
+        document.getElementById("newRole").value = user.role;
+        document.getElementById("addUserForm").style.display = "block";
+
+        // Change save button to update
+        const saveUserBtn = document.getElementById("saveUserBtn");
+        saveUserBtn.innerHTML = '<i class="fas fa-save"></i> Update User';
+        saveUserBtn.onclick = async () => {
+          const updatedData = {
+            username: document.getElementById("newUsername").value.trim(),
+            password: document.getElementById("newPassword").value || undefined,
+            email: document.getElementById("newEmail").value.trim(),
+            fullName: document.getElementById("newFullName").value.trim(),
+            role: document.getElementById("newRole").value,
+          };
+
+          try {
+            await handleUpdateUser(userId, updatedData);
+            showSuccess("User updated successfully");
+            document.getElementById("addUserForm").style.display = "none";
+            document.getElementById("newUsername").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("newEmail").value = "";
+            document.getElementById("newFullName").value = "";
+            saveUserBtn.innerHTML = '<i class="fas fa-save"></i> Save User';
+            saveUserBtn.onclick = null; // Reset to default
+            await loadUsers(currentPage);
+          } catch (error) {
+            showError(error.message || "Failed to update user");
+          }
+        };
+      }
+
+      // Delete user function
+      async function deleteUser(userId) {
+        if (!confirm("Are you sure you want to delete this user?")) return;
+
+        try {
+          await handleDeleteUser(userId);
+          showSuccess("User deleted successfully");
+          await loadUsers(currentPage);
+        } catch (error) {
+          showError(error.message || "Failed to delete user");
+        }
+      }
+
+      // Logout function
+      function logout() {
+        clearInterval(sessionInterval);
+        currentToken = null;
+        isAdminUser = false;
+        sessionTimeLeft = 300;
+        document.getElementById("loginContainer").style.display = "block";
+        document.getElementById("userDashboard").style.display = "none";
+        document.getElementById("adminDashboard").style.display = "none";
+        document.getElementById("loginForm").reset();
+        document.getElementById("captchaSection").style.display = "none";
+        captchaGenerated = false;
+        hideMessages();
+      }
+
+      // Initialize event listeners
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Check connection status
+        await checkConnection();
+
+        // Toggle password visibility
+        document.getElementById("togglePassword").addEventListener("click", () => {
+          const passwordInput = document.getElementById("password");
+          const toggleIcon = document.getElementById("togglePassword").querySelector("i");
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+          } else {
+            passwordInput.type = "password";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+          }
+        });
+
+        // Show/hide captcha based on role
+        document.getElementById("role").addEventListener("change", toggleCaptcha);
+
+        // Refresh captcha
+        document.getElementById("refreshCaptcha").addEventListener("click", generateCaptcha);
+
+        // Login form submission
+        document.getElementById("loginForm").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const loginBtn = document.getElementById("loginBtn");
+          const loginText = document.getElementById("loginText");
+          const loginSpinner = document.getElementById("loginSpinner");
+
+          loginBtn.disabled = true;
+          loginText.style.display = "none";
+          loginSpinner.style.display = "inline-block";
+          hideMessages();
+
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value;
+          const role = document.getElementById("role").value;
+
+          if (!username || !password || !role) {
+            showError("Please fill in all required fields");
+            loginBtn.disabled = false;
+            loginText.style.display = "inline";
+            loginSpinner.style.display = "none";
+            return;
+          }
+
+          // Validate captcha for USER role
+          if (role === "USER" && !validateCaptcha()) {
+            showError("Invalid CAPTCHA. Please try again.");
+            loginBtn.disabled = false;
+            loginText.style.display = "inline";
+            loginSpinner.style.display = "none";
+            return;
+          }
+
+          try {
+            const response = await handleLogin(username, password, role);
+            currentToken = response.token;
+            isAdminUser = role === "ADMIN";
+
+            if (isAdminUser) {
+              document.getElementById("loginContainer").style.display = "none";
+              document.getElementById("adminDashboard").style.display = "block";
+              document.getElementById("adminWelcome").textContent = username;
+              await loadUsers();
+            } else {
+              document.getElementById("loginContainer").style.display = "none";
+              document.getElementById("userDashboard").style.display = "block";
+              document.getElementById("userWelcome").textContent = username;
+              startSessionTimer();
+            }
+            showSuccess("Login successful!");
+          } catch (error) {
+            showError(error.message || "Login failed. Please try again.");
+          } finally {
+            loginBtn.disabled = false;
+            loginText.style.display = "inline";
+            loginSpinner.style.display = "none";
+          }
+        });
+
+        // User dashboard buttons
+        document.getElementById("userExtendBtn").addEventListener("click", async () => {
+          try {
+            const response = await handleExtendSession();
+            currentToken = response.token;
+            sessionTimeLeft = 300;
+            updateTimerDisplay();
+            document.getElementById("userSessionTimer").classList.remove("warning", "critical");
+            showSuccess("Session extended successfully");
+          } catch (error) {
+            showError("Failed to extend session");
+          }
+        });
+
+        document.getElementById("userLogoutBtn").addEventListener("click", logout);
+
+        // Admin dashboard buttons
+        document.getElementById("addUserBtn").addEventListener("click", () => {
+          document.getElementById("addUserForm").style.display = "block";
+        });
+
+        document.getElementById("cancelAddBtn").addEventListener("click", () => {
+          document.getElementById("addUserForm").style.display = "none";
+          document.getElementById("newUsername").value = "";
+          document.getElementById("newPassword").value = "";
+          document.getElementById("newEmail").value = "";
+          document.getElementById("newFullName").value = "";
+          document.getElementById("newRole").value = "USER";
+        });
+
+        document.getElementById("saveUserBtn").addEventListener("click", async () => {
+          const newUsername = document.getElementById("newUsername").value.trim();
+          const newPassword = document.getElementById("newPassword").value;
+          const newEmail = document.getElementById("newEmail").value.trim();
+          const newFullName = document.getElementById("newFullName").value.trim();
+          const newRole = document.getElementById("newRole").value;
+
+          if (!newUsername || !newPassword || !newRole) {
+            showError("Please fill in all required fields");
+            return;
+          }
+
+          try {
+            await handleCreateUser({
+              username: newUsername,
+              password: newPassword,
+              email: newEmail,
+              fullName: newFullName,
+              role: newRole,
+            });
+            showSuccess("User created successfully");
+            document.getElementById("addUserForm").style.display = "none";
+            document.getElementById("newUsername").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("newEmail").value = "";
+            document.getElementById("newFullName").value = "";
+            await loadUsers();
+          } catch (error) {
+            showError(error.message || "Failed to create user");
+          }
+        });
+
+        document.getElementById("adminLogoutBtn").addEventListener("click", logout);
+      });
+
+      // Make functions available globally for onclick handlers
+      window.editUser = editUser;
+      window.deleteUser = deleteUser;
+    </script>
+  </body>
+</html>
