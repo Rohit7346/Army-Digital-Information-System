@@ -1,0 +1,16 @@
+2025-09-16 22:30:34.593241+05:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-224]
+2025-09-16 22:53:31.012226+05:30 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM ADMINS \000d\000a[*]SELECT * FROM USERS"; SQL statement:
+SELECT * FROM ADMINS 
+SELECT * FROM USERS [42000-224]
+2025-09-16 22:53:54.006344+05:30 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM ADMINS \000d\000a[*]SELECT * FROM USERS"; SQL statement:
+SELECT * FROM ADMINS 
+SELECT * FROM USERS [42000-224]
+2025-09-17 10:52:53.321511+05:30 jdbc[14]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "ADMIN" not found; SQL statement:
+Select * from admin [42102-224]
+2025-09-17 22:23:44.778515+05:30 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]ADMINS ADMINS ADMINS"; expected "ALTER, ANALYZE"; SQL statement:
+ADMINS ADMINS ADMINS [42001-224]
